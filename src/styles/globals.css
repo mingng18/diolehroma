@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --background: #ffffff;
+  --foreground: #171717; */
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -91,7 +91,10 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
 
 .dark {
@@ -136,4 +139,52 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Add custom utilities */
+@layer utilities {
+  .filter {
+    filter: var(--tw-filter);
+  }
+  .filter-none {
+    --tw-filter: none;
+  }
+  .grayscale {
+    --tw-filter: grayscale(100%);
+  }
+}
+
+canvas {
+  display: block;
+}
+
+#imageContainer {
+  position: relative;
+  width: 800px;
+  height: 800px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  max-width: 100%;
+  filter: saturate(0);
+  transition: all ease 0.5s;
+}
+
+#imageContainer:hover {
+  filter: saturate(100%);
+}
+
+#imageContainer > * {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+/* Hide the scrollbar in anywhere */
+::-webkit-scrollbar {
+  display: none;
 }
