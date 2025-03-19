@@ -13,6 +13,7 @@ export default function PageDetails() {
   const router = useRouter();
   const { id } = router.query as { id?: string };
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Only find the project when id is available (after hydration)
   const project = id
@@ -23,7 +24,7 @@ export default function PageDetails() {
   const scrollContainerRef = useRef<HTMLUListElement>(null);
 
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
-  const currentPhoto = project?.photos[currentPhotoIndex];
+  // const currentPhoto = project?.photos[currentPhotoIndex];
 
   const lenis = useRef<Lenis>(null);
 
@@ -34,7 +35,66 @@ export default function PageDetails() {
     }
   }, [router.isReady]);
 
+  // Check if we're on mobile screen size
   useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+
+    return () => {
+      window.removeEventListener("resize", checkIfMobile);
+    };
+  }, []);
+
+  // Horizontal scroll handler for mobile view
+  useEffect(() => {
+    if (!isMobile) return;
+
+    const handleScroll = () => {
+      if (!scrollContainerRef.current || !project?.photos) return;
+
+      const container = scrollContainerRef.current;
+
+      let minDistance = Infinity;
+      let closestIndex = 0;
+
+      container.childNodes.forEach((child, index) => {
+        if (child instanceof HTMLElement) {
+          const rect = child.getBoundingClientRect();
+          const elementCenter = rect.left + rect.width / 2;
+          const viewportCenter = window.innerWidth / 2;
+          const distance = Math.abs(elementCenter - viewportCenter);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = index;
+          }
+        }
+      });
+
+      setCurrentPhotoIndex(closestIndex);
+    };
+
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      handleScroll(); // Initial check
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [project?.photos, isMobile]);
+
+  // Vertical scroll handler for desktop view
+  useEffect(() => {
+    if (isMobile) return;
+
     const handleScroll = () => {
       if (!scrollContainerRef.current || !project?.photos) return;
 
@@ -42,7 +102,7 @@ export default function PageDetails() {
       const centerY = window.innerHeight / 2; // Center of viewport
 
       let minDistance = Infinity;
-      let closestIndex: number | null = null;
+      let closestIndex = 0;
 
       container.childNodes.forEach((child, index) => {
         if (child instanceof HTMLElement) {
@@ -57,20 +117,19 @@ export default function PageDetails() {
         }
       });
 
-      if (closestIndex !== null) {
-        setCurrentPhotoIndex(closestIndex);
-      }
+      setCurrentPhotoIndex(closestIndex);
     };
 
     window.addEventListener("scroll", handleScroll);
     handleScroll(); // Initial check
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [project?.photos]);
+  }, [project?.photos, isMobile]);
 
   useEffect(() => {
     lenis.current = new Lenis({
       autoRaf: true,
+      orientation: isMobile ? "horizontal" : "vertical",
     });
 
     // const snap = new Snap(lenis.current, {
@@ -88,7 +147,7 @@ export default function PageDetails() {
       // snap.destroy();
       lenis.current?.destroy();
     };
-  }, [lenis]);
+  }, [isMobile, lenis]);
 
   // Show loading state
   if (isLoading) {
@@ -114,6 +173,102 @@ export default function PageDetails() {
     );
   }
 
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <>
+        <Head>
+          <title>{project?.title}</title>
+          <meta name="Description" content={project?.description} />
+        </Head>
+        <WindowBlind>
+          {/* Header with title and project info */}
+          <div className="fixed top-0 left-0 w-full z-10 p-6 flex flex-col items-center justify-between">
+            <h1 className="text-lg font-mono font-bold text-gray-600 text-center">
+              {project?.title}
+            </h1>
+            <p className="text-xs font-mono tracking-wide font-light text-gray-600 text-center mt-1">
+              {project?.size} | {project?.scale}x | {project?.buildTime}
+            </p>
+            <button
+              className="z-20 mt-2 bg-white/10 backdrop-blur-sm p-2 rounded-full"
+              onClick={() => router.back()}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          {/* Main image display in the center */}
+          <Scene currentPhotoIndex={currentPhotoIndex} project={project} />
+
+          {/* Image list at the bottom */}
+          <div className="h-screen relative pb-4">
+            <ul
+              ref={scrollContainerRef}
+              className="flex flex-row gap-4 items-end px-[50%] pb-4 overflow-x-auto snap-x h-full"
+            >
+              {project.photos.map((photo, index) => (
+                <li
+                  key={photo.id}
+                  data-index={index}
+                  className="relative snap-center cursor-pointer flex-shrink-0"
+                  style={{
+                    width: "60px",
+                    aspectRatio: "4/5",
+                  }}
+                  onClick={() => {
+                    setCurrentPhotoIndex(index);
+                    // Scroll the thumbnail into view
+                    const element = scrollContainerRef.current?.children[
+                      index
+                    ] as HTMLElement;
+                    if (element) {
+                      element.scrollIntoView({
+                        behavior: "smooth",
+                        block: "nearest",
+                        inline: "center",
+                      });
+                    }
+                  }}
+                >
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    fill
+                    sizes="60px"
+                    style={{
+                      objectFit: "cover",
+                      transition: "all 0.2s ease-out",
+                    }}
+                    className={`rounded ${
+                      currentPhotoIndex === index
+                        ? "ring-2 ring-white ring-offset-2 ring-offset-transparent"
+                        : "opacity-60"
+                    }`}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </WindowBlind>
+      </>
+    );
+  }
+
+  // Desktop layout (original)
   return (
     <>
       <Head>
@@ -121,7 +276,8 @@ export default function PageDetails() {
         <meta name="Description" content={project?.description} />
       </Head>
       <WindowBlind>
-        {/* Transaprent Rectangle with black border */}
+        <Scene currentPhotoIndex={currentPhotoIndex} project={project} />
+        {/* Transparent Rectangle with black border */}
         <div
           className="px-23 fixed top-0 left-0 w-full h-full"
           style={{
@@ -130,7 +286,8 @@ export default function PageDetails() {
         >
           <div className="w-22 h-14 bg-transparent border-1 border-gray-700 z-50" />
         </div>
-        <div className="w-screen flex flex-row justify-between">
+
+        <div className="w-screen flex flex-row justify-between z-[50]">
           <ul
             ref={scrollContainerRef}
             className="px-24 flex flex-col gap-4"
@@ -162,26 +319,23 @@ export default function PageDetails() {
                     transition: "all 0.2s ease-out",
                   }}
                   className={`${
-                    currentPhoto === photo ? "saturate-50 opacity-50" : ""
+                    currentPhotoIndex === index ? "saturate-50 opacity-50" : ""
                   }`}
                 />
               </li>
             ))}
           </ul>
 
-          <Scene currentPhotoIndex={currentPhotoIndex} project={project} />
-
-          <div className="fixed right-0 h-screen px-24 flex flex-col justify-center">
-            <h1 className="text-lg font-mono font-bold text-gray-600">
+          <div
+            className="fixed right-0 h-screen px-24 flex flex-col justify-center"
+            style={{
+              mixBlendMode: "difference",
+            }}
+          >
+            <h1 className="text-lg font-mono font-bold text-gray-300">
               {project?.title}
             </h1>
-            {/* <p
-              className="text-xs font-mono tracking-wider text-gray-500"
-              style={{ maxWidth: "80ch" }}
-            >
-              {project?.description}
-            </p> */}
-            <p className="text-xs font-mono tracking-wide pt-12 font-light text-gray-600">
+            <p className="text-xs font-mono tracking-wide pt-12 font-light text-gray-400 text-right">
               {project?.size}
               <br />
               {project?.scale}x
@@ -190,9 +344,17 @@ export default function PageDetails() {
             </p>
           </div>
           {/* Close Icon to go back */}
-          <button className="fixed top-4 right-4" onClick={() => router.back()}>
-            Close
-          </button>
+          <header className="fixed top-0 w-full p-6 z-100 flex justify-between items-center bg-transparent mix-blend-difference">
+            <div className="font-mono text-lg font-light tracking-widest text-gray-50">
+              ludens-garage
+            </div>
+            <button
+              className="text-sm font-mono font-light text-gray-50 cursor-pointer"
+              onClick={() => router.back()}
+            >
+              Close
+            </button>
+          </header>
         </div>
       </WindowBlind>
     </>

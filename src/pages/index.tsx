@@ -1,7 +1,7 @@
 import Header from "@/components/header";
 import PhotoGrid from "@/components/photo-grid";
 import Head from "next/head";
-import ClickSpark from "@/components/bits/ClickSpark/ClickSpark";
+// import ClickSpark from "@/components/bits/ClickSpark/ClickSpark";
 import WindowBlind from "@/components/custom/window-blind";
 // import Stairs from "@/components/custom/stair";
 

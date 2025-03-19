@@ -9,8 +9,6 @@ import {
   useState,
 } from "react";
 import * as THREE from "three";
-import MouseIcon from "./mouse-icon";
-import { Cursor } from "@/components/motion-primitives/cursor";
 import { Project } from "@/types/photo";
 
 const vertexShader = `
@@ -82,20 +80,14 @@ const MovingPlane = ({
       setTexture(loadedTexture);
 
       // Calculate aspect ratio based on image dimensions
-      const aspectRatio =
+      const imageAspectRatio =
         loadedTexture.image.width / loadedTexture.image.height;
 
-      // Base scale of 1.5 (from your original code)
-      const baseScale = 1.5;
+      // Use a fixed base scale regardless of screen size
+      const baseScale = window.innerWidth > 768 ? 1.2 : 1.5;
 
-      // If image is wider than tall
-      if (aspectRatio > 1) {
-        setScale([baseScale, baseScale / aspectRatio, 1]);
-      }
-      // If image is taller than wide
-      else {
-        setScale([baseScale * aspectRatio, baseScale, 1]);
-      }
+      // Set scale maintaining aspect ratio
+      setScale([baseScale * imageAspectRatio, baseScale, 1]);
     });
   }, [imageUrl]);
 
@@ -242,42 +234,22 @@ const Scene = ({
 
   return (
     <div
-      className="w-full fixed top-0 left-[50%] translate-x-[-50%] max-w-2xl h-full"
+      className="fixed left-[50%] top-[50%] -translate-x-1/2 -translate-y-1/2 z-0"
       style={{
-        position: "fixed",
+        width: "80vmin",
+        height: "80vmin",
         aspectRatio:
           project.photos[safePhotoIndex].src.width /
           project.photos[safePhotoIndex].src.height,
       }}
     >
-      <Cursor
-        attachToParent
-        variants={{
-          initial: { scale: 0.3, opacity: 0 },
-          animate: { scale: 1, opacity: 1 },
-          exit: { scale: 0.3, opacity: 0 },
-        }}
-        transition={{
-          ease: "easeInOut",
-          duration: 0.15,
-        }}
-        className="left-12 top-4"
-      >
-        <div>
-          <MouseIcon className="h-6 w-6" />
-          <div className="ml-4 mt-1 rounded-[4px] bg-gray-800 px-2 py-0.5 text-neutral-50">
-            {project.photos[safePhotoIndex].alt}
-          </div>
-        </div>
-      </Cursor>
       <Canvas
         ref={canvasRef}
         camera={{
           position: [0, 0, 1],
-          fov: 80,
-          aspect: 1,
+          fov: 75,
+          // aspect: project.photos[safePhotoIndex].src.width / project.photos[safePhotoIndex].src.height,
         }}
-        className="w-full h-full"
       >
         {project.photos.map((photo, index) => (
           <group key={photo.id} visible={index === safePhotoIndex}>
@@ -300,7 +272,7 @@ const Scene = ({
           src={project.photos[safePhotoIndex].src}
           alt="Preview Picture"
           fill
-          style={{ objectFit: "cover" }}
+          style={{ objectFit: "contain" }}
           priority
         />
       </div>

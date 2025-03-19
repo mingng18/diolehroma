@@ -10,7 +10,7 @@ import Lenis from "lenis";
 import router from "next/router";
 
 const textClass =
-  "font-mono fixed left-0 right-0 py-6 flex-col items-center z-40 block overflow-hidden vertical-align-bottom";
+  "font-mono fixed left-0 right-0 py-6 px-3 flex-col items-center z-40 block overflow-hidden vertical-align-bottom";
 
 // fade and blur out
 const animations = {
@@ -113,7 +113,7 @@ export default function PhotoGrid() {
   const rowVirtualizer = useWindowVirtualizer({
     count: rowsCount,
     estimateSize: () => photoHeight,
-    overscan: 5,
+    overscan: 10,
     paddingStart: padding,
     paddingEnd: padding,
   });

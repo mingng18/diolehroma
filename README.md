@@ -1,40 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Diolehroma ✨
 
-## Getting Started
+Diolehroma (iykyk) - A website created to showcase diorama made by my friends, He said architecture too boring thats why he is here.
 
-First, run the development server:
+## 💫 What's the Deal?
 
+No cap, this site's got:
+- Insane 3D visuals that hit different
+- Transitions smooth like your favorite TikTok edits
+- Responsive design that looks fire on any device
+- Graphics that make your regular websites look basic
+- Scrolling so smooth it feels illegal
+- Animations that'll make you go "sheeeesh" 
+
+## 🎮 Getting Started
+
+### 1. Set it up locally
+```bash
+git clone [your-repo-url]
+cd diolehroma
+```
+
+### 2. Get all the goods
+```bash
+npm install
+# or if you're fancy
+yarn install
+# or if you're extra fancy
+bun install
+```
+
+### 3. Fire it up! 🚀
 ```bash
 npm run dev
 # or
 yarn dev
 # or
-pnpm dev
-# or
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then just hit up [http://localhost:3000](http://localhost:3000) in your browser and watch the magic happen!
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## 👾 What You Need
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+- Node.js
+- A package manager (I used bun cause it is a bun)
+- A browser 
+- Vibes (most important)
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+This readme is written using Claude 3.5, I dont know how to write a real readme man.
