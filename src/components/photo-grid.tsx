@@ -187,6 +187,7 @@ export default function PhotoGrid() {
                     className="flex-1 relative overflow-hidden"
                     onMouseEnter={() => {
                       setHoveredProjectId(photo.projectId);
+                      router.prefetch(`/projects/${photo.projectId}`);
                     }}
                   >
                     <Image
