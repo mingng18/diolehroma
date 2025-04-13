@@ -101,7 +101,21 @@ export default function PhotoGrid() {
       autoRaf: true,
     });
 
+    // lenis.on("scroll", (e) => {
+    //   console.log("current scroll", e.scroll);
+    // });
+
+    const currentPhotoGridHeight =
+      (basePhotos.length / columnsCount) * getPhotoHeight();
+
+    // Scrolling to 2 times the height of where
+    // the photo repeats after initial load
+    lenis.scrollTo(currentPhotoGridHeight * 2, {
+      duration: 2.618,
+    });
+
     return () => lenis.destroy();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Calculate how many rows we need based on photos count and columns
