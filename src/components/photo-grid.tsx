@@ -125,8 +125,8 @@ export default function PhotoGrid() {
 
         // Scrolling to 2 times the height of where
         // the photo repeats after initial load
-        lenisRef.current.scrollTo(currentPhotoGridHeight * 2, {
-          offset: currentPhotoGridHeight * 100,
+        lenisRef.current.scrollTo(currentPhotoGridHeight * 3, {
+          // offset: currentPhotoGridHeight * 100,
           duration: 2.618,
         });
 
