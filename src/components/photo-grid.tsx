@@ -45,7 +45,14 @@ const allPhotos = Array.from(
 );
 
 export default function PhotoGrid() {
-  const [hoveredProjectId, setHoveredProjectId] = useState<number>(1);
+  const [hoveredProjectId, setHoveredProjectId] = useState<number>(() => {
+    // Get the last hovered project ID from sessionStorage if available
+    if (typeof window !== "undefined") {
+      const savedProjectId = sessionStorage.getItem("last-hovered-project-id");
+      return savedProjectId ? parseInt(savedProjectId) : 1;
+    }
+    return 1;
+  });
   const currentHoveredProject: Project | undefined = projects.find(
     (project) => project.id === hoveredProjectId
   );
@@ -101,18 +108,25 @@ export default function PhotoGrid() {
       autoRaf: true,
     });
 
-    // lenis.on("scroll", (e) => {
-    //   console.log("current scroll", e.scroll);
-    // });
+    // Check if animation has already been triggered in this session
+    const hasAnimationTriggered = sessionStorage.getItem(
+      "photo-grid-animation-triggered"
+    );
 
-    const currentPhotoGridHeight =
-      (basePhotos.length / columnsCount) * getPhotoHeight();
+    if (!hasAnimationTriggered) {
+      // First time loading - trigger the animation
+      const currentPhotoGridHeight =
+        (basePhotos.length / columnsCount) * getPhotoHeight();
 
-    // Scrolling to 2 times the height of where
-    // the photo repeats after initial load
-    lenis.scrollTo(currentPhotoGridHeight * 2, {
-      duration: 2.618,
-    });
+      // Scrolling to 2 times the height of where
+      // the photo repeats after initial load
+      lenis.scrollTo(currentPhotoGridHeight * 2, {
+        duration: 2.618,
+      });
+
+      // Mark as triggered
+      sessionStorage.setItem("photo-grid-animation-triggered", "true");
+    }
 
     return () => lenis.destroy();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -190,6 +204,12 @@ export default function PhotoGrid() {
                       )}
                       onClick={() => {
                         router.push(`/projects/${photo.projectId}`);
+                        setHoveredProjectId(photo.projectId);
+                        // Save the selected project ID to sessionStorage
+                        sessionStorage.setItem(
+                          "last-hovered-project-id",
+                          photo.projectId.toString()
+                        );
                       }}
                     />
                   </div>
