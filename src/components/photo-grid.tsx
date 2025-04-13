@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { projects } from "@/data/projects";
 import { AnimatePresence, motion } from "framer-motion";
@@ -57,6 +57,9 @@ export default function PhotoGrid() {
     (project) => project.id === hoveredProjectId
   );
 
+  // Add a ref to track the Lenis instance
+  const lenisRef = useRef<Lenis | null>(null);
+
   // Calculate number of columns based on view mode
   const getColumnsCount = useCallback(() => {
     // if (viewMode === "list") return 1;
@@ -104,33 +107,42 @@ export default function PhotoGrid() {
   }, [getColumnsCount, getPadding, getPhotoHeight]);
 
   useEffect(() => {
-    const lenis = new Lenis({
-      autoRaf: true,
-    });
-
-    // Check if animation has already been triggered in this session
-    const hasAnimationTriggered = sessionStorage.getItem(
-      "photo-grid-animation-triggered"
-    );
-
-    if (!hasAnimationTriggered) {
-      // First time loading - trigger the animation
-      const currentPhotoGridHeight =
-        (basePhotos.length / columnsCount) * getPhotoHeight();
-
-      // Scrolling to 2 times the height of where
-      // the photo repeats after initial load
-      lenis.scrollTo(currentPhotoGridHeight * 2, {
-        duration: 2.618,
+    // Only create a new instance if one doesn't already exist
+    if (!lenisRef.current) {
+      lenisRef.current = new Lenis({
+        autoRaf: true,
       });
 
-      // Mark as triggered
-      sessionStorage.setItem("photo-grid-animation-triggered", "true");
+      // Check if animation has already been triggered in this session
+      const hasAnimationTriggered = sessionStorage.getItem(
+        "photo-grid-animation-triggered"
+      );
+
+      if (!hasAnimationTriggered) {
+        // First time loading - trigger the animation
+        const currentPhotoGridHeight =
+          (basePhotos.length / columnsCount) * getPhotoHeight();
+
+        // Scrolling to 2 times the height of where
+        // the photo repeats after initial load
+        lenisRef.current.scrollTo(currentPhotoGridHeight * 2, {
+          offset: currentPhotoGridHeight * 100,
+          duration: 2.618,
+        });
+
+        // Mark as triggered
+        sessionStorage.setItem("photo-grid-animation-triggered", "true");
+      }
     }
 
-    return () => lenis.destroy();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // Cleanup function that destroys the instance only once
+    return () => {
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+      }
+    };
+  }, [columnsCount, getPhotoHeight]);
 
   // Calculate how many rows we need based on photos count and columns
   const rowsCount = useMemo(

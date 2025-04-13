@@ -65,6 +65,8 @@ const Loader: React.FC<LoaderProps> = ({ children }) => {
       );
 
       await Promise.all(promises);
+      // Wait 0.5 more seconds for animation
+      await new Promise((resolve) => setTimeout(resolve, 500));
       setLoading(false);
     };
 
