@@ -23,7 +23,7 @@ export default function About() {
           <Header />
           <div className="flex-1 flex flex-col items-center justify-center w-full">
             <MediaBetweenText
-              firstText={`Im ludens (`}
+              firstText={`I'm ludens (`}
               secondText={`) garage!`}
               mediaUrl={SampleImage}
               mediaType="image"
