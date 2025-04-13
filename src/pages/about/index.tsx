@@ -8,7 +8,6 @@ import useScreenSize from "@/hooks/use-screen-size";
 import SampleImage from "@/images/advance-garage/IMG_1265.jpg";
 
 import Head from "next/head";
-import Link from "next/link";
 import React from "react";
 
 export default function About() {
