@@ -75,7 +75,7 @@ export default function About() {
                     className="font-mono text-xs text-gray-500"
                   >
                     <ComesInGoesOutUnderline
-                      label="Carousel"
+                      label="Carousell"
                       direction="left"
                     />
                   </a>

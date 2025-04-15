@@ -76,9 +76,14 @@ const Loader: React.FC<LoaderProps> = ({ children }) => {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-zinc-50 flex flex-col items-center justify-center ">
-        <TextShimmerWave className="font-mono text-sm" duration={1}>
-          {`Loading... \n${progress.toFixed(2)}%`}
-        </TextShimmerWave>
+        <div className="flex flex-col items-center">
+          <TextShimmerWave className="font-mono text-sm" duration={1}>
+            Loading...
+          </TextShimmerWave>
+          <div className="w-16 text-center">
+            <span className="font-mono text-sm text-zinc-500">{progress.toFixed(2)}%</span>
+          </div>
+        </div>
         <div className="absolute top-0 left-0 z-0" ref={ref}>
           {ref.current && (
             <ImageTrail containerRef={ref as React.RefObject<HTMLElement>}>
