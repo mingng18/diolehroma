@@ -8,8 +8,16 @@ import {
   RefObject,
   useState,
 } from "react";
-import * as THREE from "three";
+
 import { Project } from "@/types/photo";
+import {
+  Mesh,
+  PlaneGeometry,
+  ShaderMaterial,
+  Texture,
+  TextureLoader,
+  Vector2,
+} from "three";
 
 const vertexShader = `
     varying vec2 vUv;
@@ -68,13 +76,12 @@ const MovingPlane = ({
   easeFactor: RefObject<number>;
   aberrationIntensity: RefObject<number>;
 }) => {
-  const mesh =
-    useRef<THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>>(null);
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  const mesh = useRef<Mesh<PlaneGeometry, ShaderMaterial>>(null);
+  const [texture, setTexture] = useState<Texture | null>(null);
   const [scale, setScale] = useState<[number, number, number]>([1, 1, 1]);
 
   useEffect(() => {
-    const loader = new THREE.TextureLoader();
+    const loader = new TextureLoader();
     loader.load(imageUrl, (loadedTexture) => {
       loadedTexture.needsUpdate = true;
       setTexture(loadedTexture);
@@ -93,8 +100,8 @@ const MovingPlane = ({
 
   const uniforms = useMemo(
     () => ({
-      u_mouse: { value: new THREE.Vector2(0, 0) },
-      u_prevMouse: { value: new THREE.Vector2(0, 0) },
+      u_mouse: { value: new Vector2(0, 0) },
+      u_prevMouse: { value: new Vector2(0, 0) },
       u_texture: { value: texture },
       u_aberrationIntensity: { value: 0.0 },
     }),
@@ -103,7 +110,7 @@ const MovingPlane = ({
 
   useEffect(() => {
     if (texture && mesh.current) {
-      mesh.current.material.uniforms.u_texture.value = texture;
+      mesh.current.material.uniforms.u_texture!.value = texture;
     }
   }, [texture]);
 
@@ -117,12 +124,14 @@ const MovingPlane = ({
       (targetMousePosition.current.y - mousePosition.current.y) *
       easeFactor.current;
 
-    mesh.current.material.uniforms.u_mouse.value.set(
+    const currentMaterialUniform = mesh.current.material.uniforms;
+
+    currentMaterialUniform.u_mouse!.value.set(
       mousePosition.current.x,
       1.0 - mousePosition.current.y
     );
 
-    mesh.current.material.uniforms.u_prevMouse.value.set(
+    currentMaterialUniform.u_prevMouse!.value.set(
       prevPosition.current.x,
       1.0 - prevPosition.current.y
     );
@@ -132,7 +141,7 @@ const MovingPlane = ({
       aberrationIntensity.current - 0.05
     );
 
-    mesh.current.material.uniforms.u_aberrationIntensity.value =
+    currentMaterialUniform.u_aberrationIntensity!.value =
       aberrationIntensity.current;
   });
 
@@ -232,15 +241,19 @@ const Scene = ({
     project.photos.length - 1
   );
 
+  const currentPhoto = project.photos[safePhotoIndex];
+
+  if (!currentPhoto) {
+    return <div>Loading photo...</div>;
+  }
+
   return (
     <div
       className="fixed left-[50%] top-[50%] -translate-x-1/2 -translate-y-1/2 z-0"
       style={{
         width: "80vmin",
         height: "80vmin",
-        aspectRatio:
-          project.photos[safePhotoIndex].src.width /
-          project.photos[safePhotoIndex].src.height,
+        aspectRatio: currentPhoto.src.width / currentPhoto.src.height,
       }}
     >
       <Canvas
@@ -269,7 +282,7 @@ const Scene = ({
         className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
       >
         <Image
-          src={project.photos[safePhotoIndex].src}
+          src={currentPhoto.src}
           alt="Preview Picture"
           fill
           style={{ objectFit: "contain" }}

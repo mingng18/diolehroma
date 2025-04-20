@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import { AnimatePresence } from "framer-motion";
 import type { AppProps } from "next/app";
 import { Geist, Geist_Mono } from "next/font/google";
-import { useNextCssRemovalPrevention } from "@madeinhaus/nextjs-page-transition";
+// import { useNextCssRemovalPrevention } from "@madeinhaus/nextjs-page-transition";
 import Loader from "@/components/loader";
 
 const geistSans = Geist({
@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export default function App({ Component, pageProps, router }: AppProps) {
-  useNextCssRemovalPrevention();
+  // useNextCssRemovalPrevention();
 
   return (
     <main

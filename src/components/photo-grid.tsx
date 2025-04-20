@@ -7,7 +7,9 @@ import { EASE_IN_OUT_SMOOTH, EASE_OUT } from "@/constants/curves";
 import Image from "next/image";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import Lenis from "lenis";
-import router from "next/router";
+// import router from "next/router";
+import { Photo } from "@/types/photo";
+import Link from "next/link";
 
 const textClass =
   "font-mono fixed left-0 right-0 py-6 px-3 flex-col items-center z-40 block overflow-hidden vertical-align-bottom";
@@ -37,12 +39,24 @@ const animations = {
 };
 
 const basePhotos = projects.flatMap((project) => project.photos);
-const allPhotos = Array.from(
+// Import the Photo type if it's not already imported
+
+const allPhotos: Photo[] = Array.from(
   { length: basePhotos.length * 5000 },
-  (_, index) => ({
-    ...basePhotos[index % basePhotos.length],
-  })
-);
+  (_, index) => {
+    const sourcePhoto = basePhotos[index % basePhotos.length];
+    // Explicitly ensure all required properties are defined
+
+    if (sourcePhoto) {
+      return {
+        id: sourcePhoto.id ?? `photo-${index}`,
+        src: sourcePhoto.src ?? "",
+        alt: sourcePhoto.alt || "", // Provide defaults for possibly undefined values
+        projectId: sourcePhoto.projectId ?? 1,
+      } satisfies Photo;
+    }
+  }
+).filter((photo): photo is Photo => photo !== undefined);
 
 export default function PhotoGrid() {
   const [hoveredProjectId, setHoveredProjectId] = useState<number>(() => {
@@ -199,32 +213,33 @@ export default function PhotoGrid() {
                     className="flex-1 relative overflow-hidden"
                     onMouseEnter={() => {
                       setHoveredProjectId(photo.projectId);
-                      router.prefetch(`/projects/${photo.projectId}`);
+                      // router.prefetch(`/projects/${photo.projectId}`);
                     }}
                   >
-                    <Image
-                      src={photo.src}
-                      alt={photo.alt}
-                      fill
-                      quality={40}
-                      sizes="(max-width: 1200px) 22vw, 20vw"
-                      style={{ cursor: "pointer" }}
-                      className={cn(
-                        "object-contain transition-all duration-300 filter",
-                        hoveredProjectId === photo.projectId
-                          ? "grayscale-0"
-                          : "grayscale opacity-20"
-                      )}
-                      onClick={() => {
-                        router.push(`/projects/${photo.projectId}`);
-                        setHoveredProjectId(photo.projectId);
-                        // Save the selected project ID to sessionStorage
-                        sessionStorage.setItem(
-                          "last-hovered-project-id",
-                          photo.projectId.toString()
-                        );
-                      }}
-                    />
+                    <Link href={`/projects/${photo.projectId}`}>
+                      <Image
+                        src={photo.src}
+                        alt={photo.alt}
+                        fill
+                        quality={40}
+                        sizes="(max-width: 1200px) 22vw, 20vw"
+                        style={{ cursor: "pointer" }}
+                        className={cn(
+                          "object-contain transition-all duration-300 filter",
+                          hoveredProjectId === photo.projectId
+                            ? "grayscale-0"
+                            : "grayscale opacity-20"
+                        )}
+                        onClick={() => {
+                          setHoveredProjectId(photo.projectId);
+                          // Save the selected project ID to sessionStorage
+                          sessionStorage.setItem(
+                            "last-hovered-project-id",
+                            photo.projectId.toString()
+                          );
+                        }}
+                      />
+                    </Link>
                   </div>
                 );
               })}

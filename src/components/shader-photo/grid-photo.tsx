@@ -5,12 +5,11 @@ import React, {
   RefObject,
   useCallback,
 } from "react";
+import styles from "./grid-photo.module.css";
 import Image, { StaticImageData } from "next/image";
 import { projects } from "@/data/projects";
-import styles from "./grid-photo.module.css";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import * as THREE from "three";
-// Import the R3F compatible shaders
+import { ShaderMaterial, Mesh, Texture, MathUtils } from "three";
 import { vertex, fragment } from "./r3f-shaders";
 
 // Debug flag - set to true to enable debug mode
@@ -75,9 +74,9 @@ const ShaderImage: React.FC<ShaderImageProps> = ({
   debug = DEBUG,
   useFallback = USE_FALLBACK,
 }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const meshRef = useRef<Mesh>(null);
   const { viewport, size } = useThree();
-  const [texture] = useState<THREE.Texture | null>(null);
+  const [texture] = useState<Texture | null>(null);
   const [bounds, setBounds] = useState({
     width: 0,
     height: 0,
@@ -171,9 +170,9 @@ const ShaderImage: React.FC<ShaderImageProps> = ({
         "uniforms" in meshRef.current.material
       ) {
         try {
-          const shaderMaterial = meshRef.current
-            .material as THREE.ShaderMaterial;
-          shaderMaterial.uniforms.uPlaneSizes.value = [
+          const shaderMaterial = meshRef.current.material as ShaderMaterial;
+
+          shaderMaterial.uniforms.uPlaneSizes!.value = [
             meshRef.current.scale.x,
             meshRef.current.scale.y,
           ];
@@ -183,11 +182,9 @@ const ShaderImage: React.FC<ShaderImageProps> = ({
             ((scrollY.current - scrollY.last) / size.width) * 10;
 
           // Smooth transition for strength
-          setStrength((prev) =>
-            THREE.MathUtils.lerp(prev, scrollStrength, 0.1)
-          );
+          setStrength((prev) => MathUtils.lerp(prev, scrollStrength, 0.1));
 
-          shaderMaterial.uniforms.uStrength.value = strength;
+          shaderMaterial.uniforms.uStrength!.value = strength;
         } catch (error) {
           console.error("Shader error:", error);
           setShaderError(true);
