@@ -6,6 +6,7 @@ import Head from "next/head";
 import WindowBlind from "@/components/custom/window-blind";
 import Link from "next/link";
 import { projects } from "@/data/projects";
+import { motion } from "motion/react";
 
 export default function PageDetails() {
   const project = useMemo(() => {
@@ -106,7 +107,18 @@ export default function PageDetails() {
         </Head>
         <WindowBlind>
           {/* Header with title and project info */}
-          <div className="fixed top-0 left-0 w-full z-10 p-6 flex flex-col items-center justify-between">
+          <motion.div
+            className="fixed top-0 left-0 w-full z-10 p-6 flex flex-col items-center justify-between"
+            variants={{
+              visible: {
+                transition: {
+                  delayChildren: 0.2,
+                  staggerChildren: 0.1,
+                  ease: [0.215, 0.61, 0.355, 1],
+                },
+              },
+            }}
+          >
             <h1 className="text-lg font-mono font-bold text-gray-600 text-center">
               {project?.title}
             </h1>
@@ -131,19 +143,29 @@ export default function PageDetails() {
                 </svg>
               </button>
             </Link>
-          </div>
+          </motion.div>
 
           {/* Main image display in the center */}
           <Scene currentPhotoIndex={currentPhotoIndex} project={project} />
 
           {/* Image list at the bottom */}
           <div className="h-screen relative pb-4">
-            <ul
+            <motion.ul
               ref={scrollContainerRef}
               className="flex flex-row gap-4 items-end px-[50%] pb-4 overflow-x-auto snap-x h-full"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: {
+                  transition: {
+                    delayChildren: 0.2,
+                    staggerChildren: 0.05,
+                  },
+                },
+              }}
             >
               {project.photos.map((photo, index) => (
-                <li
+                <motion.li
                   key={photo.id}
                   data-index={index}
                   className="relative snap-center cursor-pointer flex-shrink-0"
@@ -165,6 +187,10 @@ export default function PageDetails() {
                       });
                     }
                   }}
+                  variants={{
+                    hidden: { opacity: 0, filter: "blur(4px)", y: 20 },
+                    visible: { opacity: 1, filter: "blur(0px)", y: 0 },
+                  }}
                 >
                   <Image
                     src={photo.src}
@@ -181,9 +207,9 @@ export default function PageDetails() {
                         : "opacity-60"
                     }`}
                   />
-                </li>
+                </motion.li>
               ))}
-            </ul>
+            </motion.ul>
           </div>
         </WindowBlind>
       </>
@@ -210,16 +236,26 @@ export default function PageDetails() {
         </div>
 
         <div className="w-screen flex flex-row justify-between z-[50]">
-          <ul
+          <motion.ul
             ref={scrollContainerRef}
             className="px-24 flex flex-col gap-4"
             style={{
               paddingTop: "calc(50vh - 48px)",
               paddingBottom: "50vh",
             }}
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  delayChildren: 0.2,
+                  staggerChildren: 0.05,
+                },
+              },
+            }}
           >
             {project.photos.map((photo, index) => (
-              <li
+              <motion.li
                 key={photo.id}
                 data-index={index}
                 className="relative w-20 h-12 cursor-pointer"
@@ -227,6 +263,10 @@ export default function PageDetails() {
                   lenis.current?.scrollTo(index * (48 + 16), {
                     duration: 0.5,
                   });
+                }}
+                variants={{
+                  hidden: { opacity: 0, filter: "blur(4px)", y: 20 },
+                  visible: { opacity: 1, filter: "blur(0px)", y: 0 },
                 }}
               >
                 <Image
@@ -244,27 +284,40 @@ export default function PageDetails() {
                     currentPhotoIndex === index ? "saturate-50 opacity-50" : ""
                   }`}
                 />
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
 
-          <div
+          <motion.div
             className="fixed right-0 h-screen px-24 flex flex-col justify-center"
             style={{
               mixBlendMode: "difference",
             }}
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  delayChildren: 0.2,
+                  staggerChildren: 0.1,
+                  ease: [0.215, 0.61, 0.355, 1],
+                },
+              },
+            }}
           >
-            <h1 className="text-lg font-mono font-bold text-gray-300">
+            <motion.h1
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              className="text-lg font-mono font-bold text-gray-300 pb-4"
+            >
               {project?.title}
-            </h1>
-            <p className="text-xs font-mono tracking-wide pt-12 font-light text-gray-400 text-right">
-              {project?.size}
-              <br />
-              {project?.scale}x
-              <br />
-              {project?.buildTime}
-            </p>
-          </div>
+            </motion.h1>
+            <SmallWords word={project?.size} />
+            <SmallWords word={`${project?.scale}x`} />
+            <SmallWords word={`${project?.buildTime}`} />
+          </motion.div>
           {/* Close Icon to go back */}
           <header className="fixed top-0 w-full p-6 z-100 flex justify-between items-center bg-transparent mix-blend-difference">
             <div className="font-mono text-lg font-light tracking-widest text-gray-50">
@@ -279,5 +332,25 @@ export default function PageDetails() {
         </div>
       </WindowBlind>
     </>
+  );
+}
+
+function SmallWords({ word }: { word: string }) {
+  return (
+    <motion.p
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 },
+      }}
+      className="text-xs font-mono tracking-wide font-light text-gray-400 text-right pt-[0.5]"
+      style={{
+        height: "1.2em",
+        lineHeight: "1.2em",
+        overflow: "hidden",
+        boxSizing: "border-box",
+      }}
+    >
+      {word}
+    </motion.p>
   );
 }

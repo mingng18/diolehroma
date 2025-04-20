@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    reactCompiler: true,
+  },
   reactStrictMode: true,
   webpack: (config) => {
     config.module.rules.push({
@@ -9,6 +11,20 @@ const nextConfig: NextConfig = {
       use: ["raw-loader", "glslify-loader"],
     });
     return config;
+  },
+  async redirects() {
+    return [
+      {
+        source: "/projects",
+        destination: "/",
+        permanent: true,
+      },
+    ];
+  },
+  modularizeImports: {
+    "@mui/joy": {
+      transform: "@mui/joy/{{member}}",
+    },
   },
 };
 
