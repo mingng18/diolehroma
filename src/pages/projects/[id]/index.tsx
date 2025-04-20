@@ -27,117 +27,60 @@ export default function PageDetails() {
 
   // Check if we're on mobile screen size
   useEffect(() => {
-    const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
+    const checkIfMobile = () => setIsMobile(window.innerWidth < 768);
     checkIfMobile();
-    window.addEventListener("resize", checkIfMobile);
 
+    window.addEventListener("resize", checkIfMobile);
     return () => {
       window.removeEventListener("resize", checkIfMobile);
     };
   }, []);
 
-  // Horizontal scroll handler for mobile view
   useEffect(() => {
-    if (!isMobile) return;
-
-    const handleScroll = () => {
-      if (!scrollContainerRef.current || !project?.photos) return;
-
-      const container = scrollContainerRef.current;
-
-      let minDistance = Infinity;
-      let closestIndex = 0;
-
-      container.childNodes.forEach((child, index) => {
-        if (child instanceof HTMLElement) {
-          const rect = child.getBoundingClientRect();
-          const elementCenter = rect.left + rect.width / 2;
-          const viewportCenter = window.innerWidth / 2;
-          const distance = Math.abs(elementCenter - viewportCenter);
-
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestIndex = index;
-          }
-        }
-      });
-
-      setCurrentPhotoIndex(closestIndex);
-    };
-
     const container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener("scroll", handleScroll);
-      handleScroll(); // Initial check
-    }
+    if (!container) return;
 
-    return () => {
-      if (container) {
-        container.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, [project?.photos, isMobile]);
-
-  // Vertical scroll handler for desktop view
-  useEffect(() => {
-    if (isMobile) return;
-
-    const handleScroll = () => {
-      if (!scrollContainerRef.current || !project?.photos) return;
-
-      const container = scrollContainerRef.current;
-      const centerY = window.innerHeight / 2; // Center of viewport
-
-      let minDistance = Infinity;
-      let closestIndex = 0;
-
-      container.childNodes.forEach((child, index) => {
-        if (child instanceof HTMLElement) {
-          const rect = child.getBoundingClientRect();
-          const elementCenter = rect.top + rect.height / 2;
-          const distance = Math.abs(elementCenter - centerY);
-
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestIndex = index;
-          }
-        }
-      });
-
-      setCurrentPhotoIndex(closestIndex);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Initial check
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [project?.photos, isMobile]);
-
-  useEffect(() => {
     lenis.current = new Lenis({
       autoRaf: true,
       orientation: isMobile ? "horizontal" : "vertical",
     });
 
-    // const snap = new Snap(lenis.current, {
-    //   lerp: 0.2,
-    //   easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    // });
+    const handleScroll = () => {
+      let minDistance = Infinity;
+      let closestIndex = 0;
 
-    // refs.current.forEach((item) => {
-    //   if (!item || !scrollContainerRef.current) return;
-    //   const itemCenter = item.offsetLeft + item.offsetWidth / 2;
-    //   snap.add(itemCenter - scrollContainerRef.current.clientWidth / 2);
-    // });
+      const center = isMobile
+        ? window.innerWidth / 2 // horizontal center
+        : window.innerHeight / 2; // vertical center
+
+      container.childNodes.forEach((child, index) => {
+        if (child instanceof HTMLElement) {
+          const rect = child.getBoundingClientRect();
+          const elementCenter = isMobile
+            ? rect.left + rect.width / 2
+            : rect.top + rect.height / 2;
+
+          const distance = Math.abs(elementCenter - center);
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = index;
+          }
+        }
+      });
+
+      setCurrentPhotoIndex(closestIndex);
+    };
+
+    const scrollTarget = isMobile ? container : window;
+    scrollTarget.addEventListener("scroll", handleScroll);
+    handleScroll(); // Initial check
 
     return () => {
-      // snap.destroy();
       lenis.current?.destroy();
+      scrollTarget.removeEventListener("scroll", handleScroll);
     };
-  }, [isMobile, lenis]);
+  }, [isMobile]);
 
   // Show error state if project not found
   if (!project) {
