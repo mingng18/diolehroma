@@ -1,10 +1,10 @@
 import { useRef, useEffect } from "react";
-import { motion, useAnimation, useInView, Variant } from "framer-motion";
 import {
   EASE_IN_OUT_SMOOTH,
   EASE_OUT,
   STAGGER_DEFAULT,
 } from "@/constants/curves";
+import { Variant, useAnimation, useInView, motion } from "motion/react";
 
 type AnimatedTextProps = {
   text: string | string[] | undefined; // Allow undefined

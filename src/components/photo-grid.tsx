@@ -1,15 +1,14 @@
+import Image from "next/image";
+import Lenis from "lenis";
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { projects } from "@/data/projects";
-import { AnimatePresence, motion } from "framer-motion";
 import { Project } from "@/types/photo";
 import { EASE_IN_OUT_SMOOTH, EASE_OUT } from "@/constants/curves";
-import Image from "next/image";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import Lenis from "lenis";
-// import router from "next/router";
 import { Photo } from "@/types/photo";
-import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
 
 const textClass =
   "font-mono fixed left-0 right-0 py-6 px-3 flex-col items-center z-40 block overflow-hidden vertical-align-bottom";
@@ -232,7 +231,6 @@ export default function PhotoGrid() {
                         )}
                         onClick={() => {
                           setHoveredProjectId(photo.projectId);
-                          // Save the selected project ID to sessionStorage
                           sessionStorage.setItem(
                             "last-hovered-project-id",
                             photo.projectId.toString()

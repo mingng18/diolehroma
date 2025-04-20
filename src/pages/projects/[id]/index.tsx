@@ -1,39 +1,29 @@
-import React, { useEffect, useRef, useState } from "react";
-// import DistortedPhoto from "./distorted-photo/distorted-photo";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Scene from "./rgb-photo/rgb-photo";
-import { useRouter } from "next/router";
-import { projects } from "@/data/projects";
 import Image from "next/image";
 import Lenis from "lenis";
 import Head from "next/head";
 import WindowBlind from "@/components/custom/window-blind";
-// import Snap from "lenis/snap";
+import Link from "next/link";
+import { projects } from "@/data/projects";
 
 export default function PageDetails() {
-  const router = useRouter();
-  const { id } = router.query as { id?: string };
-  const [isLoading, setIsLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const project = useMemo(() => {
+    const url = window.location.href;
+    const pathParts = url.split("/");
+    const lastPart = pathParts[pathParts.length - 1];
+    const id = sessionStorage.getItem("last-hovered-project-id") ?? lastPart;
 
-  // Only find the project when id is available (after hydration)
-  const project = id
-    ? projects.find((project) => project.id.toString() === id)
-    : undefined;
+    return id
+      ? projects.find((project) => project.id.toString() === id)
+      : undefined;
+  }, []);
 
-  // const refs = useRef(Array(project?.photos.length).fill(null));
   const scrollContainerRef = useRef<HTMLUListElement>(null);
-
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
-  // const currentPhoto = project?.photos[currentPhotoIndex];
-
   const lenis = useRef<Lenis>(null);
 
-  // Set loading to false once we have the id from router
-  useEffect(() => {
-    if (router.isReady) {
-      setIsLoading(false);
-    }
-  }, [router.isReady]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState<number>(0);
 
   // Check if we're on mobile screen size
   useEffect(() => {
@@ -149,26 +139,16 @@ export default function PageDetails() {
     };
   }, [isMobile, lenis]);
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        Loading project...
-      </div>
-    );
-  }
-
   // Show error state if project not found
   if (!project) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
         <h1 className="text-xl font-bold mb-4">Project not found</h1>
-        <button
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors"
-          onClick={() => router.push("/projects")}
-        >
-          Back to Projects
-        </button>
+        <Link href="/">
+          <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition-colors">
+            Back to Projects
+          </button>
+        </Link>
       </div>
     );
   }
@@ -190,25 +170,24 @@ export default function PageDetails() {
             <p className="text-xs font-mono tracking-wide font-light text-gray-600 text-center mt-1">
               {project?.size} | {project?.scale}x | {project?.buildTime}
             </p>
-            <button
-              className="z-20 mt-2 bg-white/10 backdrop-blur-sm p-2 rounded-full"
-              onClick={() => router.back()}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
+            <Link href="/">
+              <button className="z-20 mt-2 bg-white/10 backdrop-blur-sm p-2 rounded-full">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </Link>
           </div>
 
           {/* Main image display in the center */}
@@ -348,12 +327,11 @@ export default function PageDetails() {
             <div className="font-mono text-lg font-light tracking-widest text-gray-50">
               ludens-garage
             </div>
-            <button
-              className="text-sm font-mono font-light text-gray-50 cursor-pointer"
-              onClick={() => router.back()}
-            >
-              Close
-            </button>
+            <Link href="/">
+              <button className="text-sm font-mono font-light text-gray-50 cursor-pointer">
+                Close
+              </button>
+            </Link>
           </header>
         </div>
       </WindowBlind>

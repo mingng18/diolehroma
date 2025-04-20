@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@madeinhaus/nextjs-page-transition": "^4.2.0",
     "@radix-ui/react-slot": "^1.1.2",
     "@react-three/drei": "^10.0.4",
     "@react-three/fiber": "^9.1.0",
@@ -18,11 +17,9 @@
     "@vercel/analytics": "^1.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.5.0",
     "glslify-loader": "^2.0.0",
     "lenis": "^1.2.3",
-    "lucide-react": "^0.479.0",
-    "motion": "^12.6.5",
+    "motion": "^12.7.4",
     "next": "^15.3.1",
     "ogl": "^1.0.11",
     "raw-loader": "^4.0.2",
@@ -31,7 +28,7 @@
     "sharp": "^0.34.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
-    "three": "^0.174.0",
+    "three": "^0.175.0",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
